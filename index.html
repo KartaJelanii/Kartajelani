@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Карта Желаний - Планировщик целей</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <!-- УВЕДОМЛЕНИЕ -->
+    <div id="notification" class="notification">
+        <div class="notification-icon" id="notification-icon">
+            <i class="fas fa-star"></i>
+        </div>
+        <div class="notification-content">
+            <h4 id="notification-title">Уведомление</h4>
+            <p id="notification-text">Текст уведомления</p>
+        </div>
+    </div>
+
+    <!-- ШАПКА -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" onclick="showPage('main')">
+                    <i class="fas fa-magic"></i>
+                    <span>Карта Желаний</span>
+                </div>
+                <div class="nav-links">
+                    <div class="nav-link active" onclick="showPage('main')">
+                        <i class="fas fa-home"></i> Главная
+                    </div>
+                    <div class="nav-link" onclick="showPage('about')">
+                        <i class="fas fa-info-circle"></i> О нас
+                    </div>
+                    <div class="nav-link" id="profile-link" onclick="showPage('profile')" style="display:none;">
+                        <i class="fas fa-user-circle"></i> Профиль
+                    </div>
+                </div>
+                <div class="user-info" id="user-info">
+                    <div class="user-avatar" onclick="showPage('profile')" id="user-avatar-container">
+                        <div class="avatar-text" id="avatar-text">Г</div>
+                        <img src="" alt="" class="avatar-img" id="avatar-img" style="display: none" />
+                    </div>
+                    <div class="user-name" id="user-name">Гость</div>
+                    <button class="btn-logout" onclick="logout()" id="logout-btn" style="display: none">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                    <button class="btn-logout" onclick="showPage('auth')" id="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="main-wrapper">
+        <!-- ГЛАВНАЯ СТРАНИЦА -->
+        <div class="container page active" id="main-page">
+            <div class="main-content">
+                <div class="left-panel">
+                    <h2 class="section-title"><i class="fas fa-plus-circle"></i> Добавить желание</h2>
+                    <div id="auth-message" class="message" style="display: none"></div>
+
+                    <form id="goal-form">
+                        <div class="form-group">
+                            <label for="goal-title">Название желания</label>
+                            <input type="text" id="goal-title" placeholder="Например: Купить новый автомобиль" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goal-description">Описание желания</label>
+                            <textarea id="goal-description" placeholder="Опишите ваше желание более подробно..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Категория</label>
+                            <div class="category-selector">
+                                <div class="category finance" data-category="finance">
+                                    <i class="fas fa-money-bill-wave"></i> Финансы
+                                </div>
+                                <div class="category health" data-category="health">
+                                    <i class="fas fa-heartbeat"></i> Здоровье
+                                </div>
+                                <div class="category education" data-category="education">
+                                    <i class="fas fa-graduation-cap"></i> Образование
+                                </div>
+                                <div class="category travel" data-category="travel">
+                                    <i class="fas fa-plane"></i> Путешествия
+                                </div>
+                                <div class="category relationship" data-category="relationship">
+                                    <i class="fas fa-users"></i> Отношения
+                                </div>
+                                <div class="category career" data-category="career">
+                                    <i class="fas fa-briefcase"></i> Карьера
+                                </div>
+                            </div>
+                            <input type="hidden" id="goal-category" value="finance" />
+                        </div>
+
+                        <div class="form-group" id="finance-fields" style="display: none">
+                            <label><i class="fas fa-money-bill-wave"></i> Финансовая информация</label>
+                            <div class="finance-amount-inputs">
+                                <div style="flex: 1">
+                                    <small style="color: var(--gray-color); display: block; margin-bottom: 5px">Сумма цели (₽)</small>
+                                    <input type="number" id="goal-target-amount" placeholder="0" min="0" step="1000" />
+                                </div>
+                                <div style="flex: 1">
+                                    <small style="color: var(--gray-color); display: block; margin-bottom: 5px">Накоплено (₽)</small>
+                                    <input type="number" id="goal-saved-amount" placeholder="0" min="0" step="1000" />
+                                </div>
+                            </div>
+                            <small style="color: var(--gray-color); font-size: 0.85rem">
+                                Прогресс будет рассчитан автоматически
+                            </small>
+                        </div>
+
+                        <div class="form-group image-upload">
+                            <label class="image-upload-label">Изображение (опционально)</label>
+                            <div class="image-preview-container">
+                                <div class="image-preview" id="image-preview" onclick="document.getElementById('goal-image-input').click()">
+                                    <div class="preview-placeholder" id="image-preview-placeholder">
+                                        <i class="fas fa-image"></i>
+                                        <span>Нажмите для загрузки</span>
+                                    </div>
+                                    <img src="" alt="" class="preview-image" id="image-preview-img" style="display: none" />
+                                </div>
+                                <div class="image-actions">
+                                    <button type="button" class="btn-image btn-image-upload" onclick="document.getElementById('goal-image-input').click()">
+                                        <i class="fas fa-upload"></i> Загрузить
+                                    </button>
+                                    <button type="button" class="btn-image btn-image-remove" onclick="removeImage()">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="file" id="goal-image-input" accept="image/*" style="display: none" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goal-date">Дата достижения</label>
+                            <div class="date-picker">
+                                <input type="date" id="goal-date" required />
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goal-priority">Приоритет</label>
+                            <select id="goal-priority">
+                                <option value="low">Низкий</option>
+                                <option value="medium" selected>Средний</option>
+                                <option value="high">Высокий</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Добавить желание
+                        </button>
+                    </form>
+                </div>
+
+                <div class="right-panel">
+                    <h2 class="section-title"><i class="fas fa-heart"></i> Твои желания</h2>
+                    <div class="goals-container" id="goals-container">
+                        <div class="empty-state" id="empty-state">
+                            <i class="fas fa-heart"></i>
+                            <h3>У вас пока нет желаний</h3>
+                            <p>Добавьте свое первое желание, используя форму слева</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА АВТОРИЗАЦИИ -->
+        <div class="container page" id="auth-page">
+            <div class="auth-container">
+                <div class="auth-box">
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" onclick="showAuthTab('login')">Вход</div>
+                        <div class="auth-tab" onclick="showAuthTab('register')">Регистрация</div>
+                    </div>
+
+                    <!-- ВХОД -->
+                    <div class="auth-form active" id="login-form">
+                        <h2 class="auth-title">Вход в аккаунт</h2>
+                        <div id="login-message" class="message" style="display: none"></div>
+
+                        <div class="social-login">
+                            <button class="btn-social btn-google" onclick="socialLogin('google')">
+                                <i class="fab fa-google" style="color: #db4437"></i>
+                                Войти через Google
+                            </button>
+                            <button class="btn-social btn-vk" onclick="socialLogin('vk')">
+                                <i class="fab fa-vk" style="color: #4a76a8"></i>
+                                Войти через ВКонтакте
+                            </button>
+                        </div>
+
+                        <div class="divider"><span>или войдите через email</span></div>
+
+                        <div class="demo-credentials">
+                            <h4><i class="fas fa-info-circle"></i> Демо доступ:</h4>
+                            <p><i class="fas fa-user"></i> Логин: <strong>demo</strong></p>
+                            <p><i class="fas fa-key"></i> Пароль: <strong>demo123</strong></p>
+                        </div>
+
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="login-email">Email или Логин</label>
+                                <input type="text" id="login-email" placeholder="Введите email или логин" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">Пароль</label>
+                                <input type="password" id="login-password" placeholder="Введите пароль" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Войти
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- РЕГИСТРАЦИЯ -->
+                    <div class="auth-form" id="register-form">
+                        <h2 class="auth-title">Создание аккаунта</h2>
+                        <div id="register-message" class="message" style="display: none"></div>
+
+                        <div class="social-login">
+                            <button class="btn-social btn-google" onclick="socialRegister('google')">
+                                <i class="fab fa-google" style="color: #db4437"></i>
+                                Зарегистрироваться через Google
+                            </button>
+                            <button class="btn-social btn-vk" onclick="socialRegister('vk')">
+                                <i class="fab fa-vk" style="color: #4a76a8"></i>
+                                Зарегистрироваться через ВКонтакте
+                            </button>
+                        </div>
+
+                        <div class="divider"><span>или через email</span></div>
+
+                        <form id="registerForm">
+                            <div class="form-group profile-image-upload">
+                                <div class="profile-image-container" onclick="document.getElementById('register-avatar-input').click()">
+                                    <div class="profile-image-placeholder" id="register-avatar-placeholder">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <img src="" alt="" class="profile-image" id="register-avatar-preview" style="display: none" />
+                                    <div class="profile-image-edit"><i class="fas fa-camera"></i> Изменить</div>
+                                </div>
+                                <input type="file" id="register-avatar-input" accept="image/*" style="display: none" />
+                                <small style="color: var(--gray-color)">Нажмите для загрузки аватара</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="register-name">Имя</label>
+                                <input type="text" id="register-name" placeholder="Введите имя" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="register-email">Email</label>
+                                <input type="email" id="register-email" placeholder="Введите email" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="register-login">Логин</label>
+                                <input type="text" id="register-login" placeholder="Придумайте логин" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="register-password">Пароль</label>
+                                <input type="password" id="register-password" placeholder="Придумайте пароль" required />
+                                <small style="color: var(--gray-color); font-size: 0.85rem">Минимум 6 символов</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="register-confirm-password">Подтверждение пароля</label>
+                                <input type="password" id="register-confirm-password" placeholder="Повторите пароль" required />
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Зарегистрироваться
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА "О НАС" -->
+        <div class="container page" id="about-page">
+            <div class="about-container">
+                <div class="about-header">
+                    <h1>О проекте "Карта Желаний"</h1>
+                    <p>Ваш личный помощник в достижении целей</p>
+                </div>
+                <div class="about-section">
+                    <h2><i class="fas fa-question-circle"></i> Что это?</h2>
+                    <p>
+                        "Карта Желаний" — современное веб-приложение для визуализации и планирования целей.
+                        Мы помогаем превращать мечты в реальность.
+                    </p>
+                </div>
+                <div class="about-section">
+                    <h2><i class="fas fa-bullseye"></i> Преимущества</h2>
+                    <div class="benefits-grid">
+                        <div class="benefit-card">
+                            <i class="fas fa-eye"></i>
+                            <h3>Визуализация</h3>
+                            <p>Визуализация целей увеличивает вероятность достижения на 42%</p>
+                        </div>
+                        <div class="benefit-card">
+                            <i class="fas fa-tasks"></i>
+                            <h3>Планирование</h3>
+                            <p>Разбивайте большие желания на шаги</p>
+                        </div>
+                        <div class="benefit-card">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Отслеживание</h3>
+                            <p>Следите за прогрессом в реальном времени</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cta-section">
+                    <h2>Начните прямо сейчас!</h2>
+                    <button class="btn btn-cta" onclick="showPage(currentUser ? 'main' : 'auth')">
+                        <i class="fas fa-rocket"></i> Начать
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА ПРОФИЛЯ -->
+        <div class="container page" id="profile-page">
+            <div class="auth-container">
+                <div class="auth-box">
+                    <h2 class="auth-title"><i class="fas fa-user-circle"></i> Мой профиль</h2>
+                    <div id="profile-message" class="message" style="display: none"></div>
+
+                    <div class="form-group profile-image-upload">
+                        <div class="profile-image-container" onclick="document.getElementById('profile-avatar-input').click()">
+                            <div class="profile-image-placeholder" id="profile-avatar-placeholder"></div>
+                            <img src="" alt="" class="profile-image" id="profile-avatar-preview" style="display: none" />
+                            <div class="profile-image-edit"><i class="fas fa-camera"></i> Изменить</div>
+                        </div>
+                        <input type="file" id="profile-avatar-input" accept="image/*" style="display: none" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-name">Имя</label>
+                        <input type="text" id="profile-name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-email">Email</label>
+                        <input type="email" id="profile-email" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-login">Логин</label>
+                        <input type="text" id="profile-login" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Дата регистрации</label>
+                        <input type="text" id="profile-created" disabled style="background-color: #e2e8f0" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Статистика</label>
+                        <div style="background-color: #f8fafc; padding: 15px; border-radius: 10px">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px">
+                                <span>Всего желаний:</span> <strong id="profile-total-goals">0</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px">
+                                <span>Выполнено:</span> <strong id="profile-completed-goals">0</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between">
+                                <span>В процессе:</span> <strong id="profile-active-goals">0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="updateProfile()">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="showPage('main')" style="margin-top: 10px; width: 100%">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОДВАЛ -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo"><i class="fas fa-magic"></i><span>Карта Желаний</span></div>
+                    <p>Визуализируйте и достигайте!</p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Контакты</h3>
+                    <p>Email: info@wishmap.ru</p>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="footer-total-goals">0</div>
+                    <div>Всего желаний</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="footer-upcoming-goals">0</div>
+                    <div>Предстоящих</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="footer-users-count">1</div>
+                    <div>Пользователей</div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2023 Карта Желаний</p></div>
+        </div>
+    </footer>
+
+    <!-- ПОДКЛЮЧАЕМ JAVASCRIPT -->
+    <script src="js/app.js"></script>
+</body>
+</html>
